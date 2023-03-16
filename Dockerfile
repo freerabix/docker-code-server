@@ -1,12 +1,9 @@
 ###template: https://github.com/coder/code-server/blob/bbf18cc6b0e50308219e096d24961d10b62e0479/ci/release-image/Dockerfile
 
-#ARG PASSWORD=password
-#ARG PORT=8443
-#ARG WORKSPACE=/app/workspace
 
 FROM registry.suse.com/bci/bci-base:15.4 as packages
 
-RUN zypper --non-interactive update && zypper --non-interactive install tar gzip xz wget && zypper -n clean && rm -r /var/log/*
+RUN zypper --non-interactive update && zypper --non-interactive install tar gzip xz wget acl && zypper -n clean && rm -r /var/log/*
 
 #COPY code-server*.rpm /tmp
 #ADD code-server-4.10.1-linux-amd64.tar.gz /tmp
@@ -15,18 +12,36 @@ RUN zypper --non-interactive update && zypper --non-interactive install tar gzip
 #RUN zypper --non-interactive update && zypper --non-interactive install --allow-unsigned-rpm /tmp/code-server-4.10.1-amd64.rpm && zypper -n clean && rm -r /var/log/*
 RUN wget https://github.com/coder/code-server/releases/download/v4.10.1/code-server-4.10.1-amd64.rpm -P /tmp
 
+###set permission: cleaning
+COPY rootfs /tmp/rootfs
+RUN setfacl -R -b  /tmp/rootfs
 
+
+
+######MAIN######
 FROM registry.suse.com/bci/bci-base:15.4
 
-ENV EXTENSIONS_GALLERY='{"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery"}'
+ARG WORKSPACE=/app/workspace
+ARG IFBIND="0.0.0.0:8443"
+ARG GIT_NAME
+ARG GIT_EMAIL
+ARG VS_EXTENSIONS_GALLERY=false
+ARG PASSWORD=true
 
+ENV PASSWORD=$PASSWORD
+ENV VS_EXTENSIONS_GALLERY=$VS_EXTENSIONS_GALLERY
+ENV IFBIND=$IFBIND
+ENV WORKSPACE=$WORKSPACE
+ENV GIT_NAME=$GIT_NAME
+ENV GIT_EMAIL=$GIT_EMAIL
+#ENV EXTENSIONS_GALLERY='{"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery"}'
 
 #openssh git-lfs nano man zsh curl locales
 #git lfs install
 RUN zypper --non-interactive update && zypper --non-interactive install git sudo
 
 #todo: git name
-#COPY rootfs /
+COPY --from=packages /tmp/rootfs /
 #RUN mkdir -p /app/config/.config/code-server && mkdir /app/workspace && 
 RUN useradd -u 911 -m -d /app/config code && chown -R code:users /app
 #COPY product.json /app/config/.config/code-server
@@ -40,7 +55,7 @@ RUN --mount=from=packages,src=/tmp,dst=/tmp zypper --non-interactive install --a
 VOLUME /app
 
 #USER code
-WORKDIR /app/workspace
+WORKDIR $WORKSPACE
 EXPOSE 8443
 
 #config.yaml: password, bind-addr
@@ -48,7 +63,6 @@ EXPOSE 8443
 #CMD code-server --disable-telemetry --disable-update-check /app/workspace
 
 #RUN chmod +x /opt/entrypoint.sh
-#ENTRYPOINT /usr/local/bin/entrypoint.sh --disable-telemetry --disable-update-check /app/workspace
-CMD /bin/bash
-
-#COPY rootfs/etc/sudoers.d/nopasswd /etc/sudoers.d
+ENTRYPOINT /usr/local/sbin/entrypoint.sh
+#--bind-addr $IFBIND --disable-telemetry --disable-update-check $WORKSPACE
+#CMD /bin/bash
