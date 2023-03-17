@@ -19,7 +19,7 @@ if [ "$ENV_GIT_NAME" != "" ] || [ "$ENV_GIT_EMAIL" != "" ]; then
     git config --global user.name $ENV_GIT_NAME
     git config --global user.email $ENV_GIT_EMAIL
 else
-    echo "NO GIT_NAME or GIT_EMAIL IS SET!"
+    echo "set ENV_GIT_NAME and ENV_GIT_EMAIL"
     exit
 fi
 

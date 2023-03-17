@@ -20,18 +20,19 @@ RUN setfacl -R -b  /tmp/rootfs
 
 ######MAIN######
 FROM registry.suse.com/bci/bci-base:15.4
-
+# 
 ARG ARG_WORKSPACE=/app/workspace
-#ARG PORT 
-ARG ARG_IFBIND="0.0.0.0:8443"
+ARG ARG_PORT=8443
+ARG ARG_IFBIND="0.0.0.0"
 ARG ARG_GIT_NAME
 ARG ARG_GIT_EMAIL
 ARG ARG_VS_EXTENSIONS_GALLERY=false
 ARG ARG_PASSWORD=password
 
-ENV ENV_PASSWORD=$ARG_PASSWORD
+#ENV ENV_PASSWORD=$ARG_PASSWORD
 ENV PASSWORD=$ARG_PASSWORD
 ENV ENV_VS_EXTENSIONS_GALLERY=$ARG_VS_EXTENSIONS_GALLERY
+ENV ENV_PORT=$ARG_PORT
 ENV ENV_IFBIND=$ARG_IFBIND
 ENV ENV_WORKSPACE=$ARG_WORKSPACE
 ENV ENV_GIT_NAME=$ARG_GIT_NAME
@@ -48,12 +49,13 @@ RUN useradd -u 911 -m -d /app/config code && chown -R code:users /app && chown c
 
 #VOLUME /app
 WORKDIR $ENV_WORKSPACE
-EXPOSE 8443
+EXPOSE $ENV_PORT
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 USER code
 #CMD ["/usr/bin/code-server","--bind-addr", "echo","$ENV_IFBIND"]
-CMD /usr/bin/code-server --bind-addr $ENV_IFBIND --auth password --disable-telemetry --disable-update-check $WORKSPACE
+CMD /usr/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password --disable-telemetry --disable-update-check $WORKSPACE
+
 
 
 
