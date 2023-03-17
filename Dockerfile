@@ -48,12 +48,12 @@ RUN --mount=from=packages,src=/tmp,dst=/tmp zypper --non-interactive install --a
 
 COPY --from=packages /tmp/rootfs /
 RUN useradd -u 911 -m -d /app/config code && chown -R code:users /app && chown code /usr/local/bin/entrypoint.sh
-EXPOSE $ENV_PORT
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+EXPOSE $ENV_PORT
+VOLUME /app
 
 ##must be here and rest must follow!
 USER code
-VOLUME /app
 WORKDIR $ENV_WORKSPACE
 #CMD ["/usr/bin/code-server","--bind-addr", "echo","$ENV_IFBIND"]
 CMD /usr/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password --disable-telemetry --disable-update-check $ENV_WORKSPACE
