@@ -15,7 +15,7 @@ RUN wget https://github.com/coder/code-server/releases/download/v4.10.1/code-ser
 ###set permission: cleaning
 COPY rootfs /tmp/rootfs
 RUN setfacl -R -b  /tmp/rootfs
-
+RUN chown 911:root /tmp/rootfs/usr/local/bin/entrypoint.sh
 
 
 ######MAIN######
@@ -54,7 +54,7 @@ RUN --mount=from=packages,src=/tmp,dst=/tmp zypper --non-interactive install --a
 
 VOLUME /app
 
-#USER code
+USER code
 WORKDIR $WORKSPACE
 EXPOSE 8443
 
@@ -63,6 +63,6 @@ EXPOSE 8443
 #CMD code-server --disable-telemetry --disable-update-check /app/workspace
 
 #RUN chmod +x /opt/entrypoint.sh
-ENTRYPOINT /usr/local/sbin/entrypoint.sh
+#ENTRYPOINT /usr/local/bin/entrypoint.sh
 #--bind-addr $IFBIND --disable-telemetry --disable-update-check $WORKSPACE
-#CMD /bin/bash
+CMD /usr/bin/code-server

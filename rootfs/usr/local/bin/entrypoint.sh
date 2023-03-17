@@ -22,4 +22,4 @@ fi
 
 
 #/usr/bin/code-server "$@"
-/usr/bin/code-server --bind-addr $IFBIND --auth password --disable-telemetry --disable-update-check $WORKSPACE
+#/usr/bin/code-server --bind-addr $IFBIND --auth password --disable-telemetry --disable-update-check $WORKSPACE
