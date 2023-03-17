@@ -23,7 +23,9 @@ RUN setfacl -R -b  /tmp/rootfs
 
 ######MAIN######
 FROM registry.suse.com/bci/bci-base:${SUSE_BCI_BASE_VERSION}
-# 
+
+MAINTAINER Robert Hörr
+
 ARG ARG_WORKSPACE=/app/workspace
 ARG ARG_PORT=8443
 ARG ARG_IFBIND="0.0.0.0"
