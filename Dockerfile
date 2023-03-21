@@ -65,7 +65,7 @@ ENV ENV_GIT_EMAIL=$ARG_GIT_EMAIL
 
 #openssh git-lfs nano man zsh curl locales
 #git lfs install
-RUN zypper --non-interactive update && zypper --non-interactive install tini git sudo argon2 code-server && zypper -n clean && rm -r /var/log/*
+RUN zypper --non-interactive update && zypper --non-interactive install tini git sudo argon2 caddy && zypper -n clean && rm -r /var/log/*
 RUN --mount=from=packages,src=/tmp,dst=/tmp zypper --non-interactive install --allow-unsigned-rpm /tmp/code-server*.rpm && zypper -n clean && rm -r /var/log/*
 
 COPY --from=packages /rootfs/sbin /usr/local/sbin

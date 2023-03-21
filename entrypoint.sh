@@ -33,6 +33,8 @@ if [ "$ENV_GIT_NAME" != "" ] && [ "$ENV_GIT_EMAIL" != "" ]; then
     unset ENV_GIT_EMAIL
 fi
 
+#mydomain.com
+#reverse_proxy 0.0.0.0:8443
 
 unset ENV_UID
 unset ENV_VS_EXTENSIONS_GALLERY
