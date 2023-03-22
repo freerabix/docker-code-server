@@ -1,43 +1,34 @@
 ###template: https://github.com/coder/code-server/blob/bbf18cc6b0e50308219e096d24961d10b62e0479/ci/release-image/Dockerfile
 
-ARG ARG_OS_VERSION="15.4"
-ARG ARG_OS_URL="registry.opensuse.org/opensuse/leap"
-FROM ${ARG_OS_URL}:${ARG_OS_VERSION} as packages
+ARG ARG_OS_URL="alpine"
+ARG ARG_OS_VERSION="3.15"
+FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION} as packages
 
-ARG ARG_CODE_SERVER_VERSION="4.10.1"
-ARG ARG_GOSU_VERSION="1.16"
+ARG ARG_CODE_SERVER_VERSION="4.11.0"
+#ARG ARG_GOSU_VERSION="1.16"
 #ARG ARG_TINI_VERSION="v0.19.0"
 
-#zypper --non-interactive install -t pattern devel_basis && \
-RUN zypper --non-interactive update && \
-zypper --non-interactive install tar gzip xz wget && \
-zypper -n clean && rm -r /var/log/*
-
-
-#create rootfs
-#RUN mkdir -p /rootfs/app/{workspace,config} && mkdir -p /rootfs/usr/local/bin
-#COPY entrypoint.sh /rootfs/usr/local/bin
-#RUN chmod +x /rootfs/usr/local/bin/entrypoint.sh
-#COPY code-server*.rpm /tmp
-#ADD code-server-4.10.1-linux-amd64.tar.gz /tmp
-#RUN wget https://github.com/coder/code-server/releases/download/v4.10.1/code-server-4.10.1-linux-amd64.tar.gz -O /tmp/code-server.tar.gz && mkdir /tmp/code-server &&  tar xf /tmp/code-server.tar.gz -C /tmp/code-server --strip-components=1
-#ADD code-server-4.10.1-linux-amd64.tar.gz /tmp
-#RUN zypper --non-interactive update && zypper --non-interactive install --allow-unsigned-rpm /tmp/code-server-4.10.1-amd64.rpm && zypper -n clean && rm -r /var/log/*
+RUN apk update && \
+apk add tar gzip xz wget
+#zypper -n clean && rm -r /var/log/*
 
 ###set permission: cleaning
-#COPY rootfs /tmp/rootfs
 #RUN setfacl -R -b  /tmp/rootfs
-RUN mkdir -p /rootfs/sbin
-COPY --chown=root:root entrypoint.sh /rootfs/sbin
-RUN wget https://github.com/tianon/gosu/releases/download/${ARG_GOSU_VERSION}/gosu-amd64 -O /rootfs/sbin/gosu
-#RUN wget https://github.com/krallin/tini/releases/download/${ARG_TINI_VERSION}/tini -O /rootfs/sbin/tini
-RUN wget https://github.com/coder/code-server/releases/download/v${ARG_CODE_SERVER_VERSION}/code-server-${ARG_CODE_SERVER_VERSION}-amd64.rpm -P /tmp
+RUN mkdir -p /rootfs/opt/npm && \
+mkdir -p /rootfs/app/workspace && \
+mkdir -p /rootfs/app/config
 
+COPY --chown=root:root entrypoint.sh /rootfs
+
+RUN apk update && \
+apk add bash npm nodejs python3 curl build-base && \
+npm config set prefix /rootfs/opt/npm && \
+npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm
 
 
 ######MAIN######
-#FROM registry.opensuse.org/opensuse/leap:15.4
 FROM ${ARG_OS_URL}:${ARG_OS_VERSION}
+
 
 ARG ARG_WORKSPACE="/app/workspace"
 ARG ARG_PORT=8443
@@ -65,35 +56,16 @@ ENV ENV_GIT_EMAIL=$ARG_GIT_EMAIL
 
 #openssh git-lfs nano man zsh curl locales
 #git lfs install
-RUN zypper --non-interactive update && zypper --non-interactive install tini git sudo argon2 caddy && zypper -n clean && rm -r /var/log/*
-RUN --mount=from=packages,src=/tmp,dst=/tmp zypper --non-interactive install --allow-unsigned-rpm /tmp/code-server*.rpm && zypper -n clean && rm -r /var/log/*
+COPY --from=packages /rootfs /
 
-COPY --from=packages /rootfs/sbin /usr/local/sbin
-RUN mkdir -p /app/{workspace,config} && useradd -u $ENV_UID -d /app/config $ENV_USER_NAME && chown -R ${ENV_USER_NAME}:users /app && chmod +x /usr/local/sbin/*
+RUN apk update && \
+apk add tini su-exec git sudo argon2 caddy bash nodejs
 
-
-#todo: create rootfs
-##todo: tinit
-#USER code
-#ENTRYPOINT ["/usr/local/sbin/entrypoint.sh"]
-ENTRYPOINT ["/tini","--","/usr/local/sbin/entrypoint.sh"]
+RUN adduser -u $ENV_UID -H -D -h /app/config $ENV_USER_NAME && \
+chown -R ${ENV_USER_NAME}:users /app && \
+chmod +x /entrypoint.sh
 
 EXPOSE $ENV_PORT
-#VOLUME /app /var/log /tmp
-
-##must be here and rest must follow!
-#USER code
 WORKDIR $ENV_WORKSPACE
-#CMD ["/usr/bin/code-server","--bind-addr", "$ENV_IFBIND:9090"]
-CMD /usr/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password --disable-telemetry --disable-update-check $ENV_WORKSPACE
-#CMD ["/usr/bin/code-server","--auth","password"]
-#COPY --from=packages /tmp/code-server /usr/local
-#ADD code-server-4.10.1-linux-amd64.tar.gz /usr/local
-
-#RUN chmod +x /opt/entrypoint.sh
-#RUN chown code /usr/local/bin/entrypoint.sh
-#--bind-addr $IFBIND --disable-telemetry --disable-update-check $WORKSPACE
-
-#config.yaml: password, bind-addr
-#not needed: --bind-addr 0.0.0.0:8443 --auth password
-#CMD code-server --disable-telemetry --disable-update-check /app/workspace
+ENTRYPOINT ["/sbin/tini","--","/entrypoint.sh"]
+CMD /opt/npm/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password --disable-telemetry --disable-update-check $ENV_WORKSPACE
