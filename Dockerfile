@@ -27,7 +27,7 @@ npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm
 
 
 ######MAIN######
-FROM ${ARG_OS_URL}:${ARG_OS_VERSION}
+FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION}
 
 
 ARG ARG_WORKSPACE="/app/workspace"
