@@ -21,10 +21,12 @@ mkdir -p /rootfs/app/config
 COPY --chown=root:root entrypoint.sh /rootfs
 
 RUN apk update && \
-apk add bash npm nodejs python3 curl build-base && \
+apk add bash npm nodejs python3 curl build-base libstdc++ libc6-compat alpine-sdk && \
 npm config set prefix /rootfs/opt/npm && \
 npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm
 
+#apk add alpine-sdk bash libstdc++ libc6-compat
+#npm config set python python3
 
 ######MAIN######
 FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION}
@@ -59,7 +61,7 @@ ENV ENV_GIT_EMAIL=$ARG_GIT_EMAIL
 COPY --from=packages /rootfs /
 
 RUN apk update && \
-apk add tini su-exec git sudo argon2 caddy bash nodejs
+apk add tini su-exec git sudo argon2 caddy bash nodejs libstdc++ libc6-compat
 
 RUN adduser -u $ENV_UID -H -D -h /app/config $ENV_USER_NAME && \
 chown -R ${ENV_USER_NAME}:users /app && \
