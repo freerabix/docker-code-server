@@ -1,6 +1,6 @@
 ###template: https://github.com/coder/code-server/blob/bbf18cc6b0e50308219e096d24961d10b62e0479/ci/release-image/Dockerfile
 
-ARG ARG_
+#ARG ARG_CPU_ARCH="amd64"
 ARG ARG_OS_URL="alpine"
 ARG ARG_OS_VERSION="3.15"
 FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION} as packages
@@ -34,23 +34,9 @@ cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
 ######MAIN######
 FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION}
 
-
-#ARG ARG_WORKSPACE="/app/workspace"
-#ARG ARG_PORT=8443
-#ARG ARG_IFBIND="0.0.0.0"
-#ARG ARG_VS_EXTENSIONS_GALLERY=false
-#ARG ARG_WEB_PASSWORD=hallo
-#ARG ARG_USER_PASSWORD=hallo
-#ARG ARG_GIT_NAME
-#ARG ARG_GIT_EMAIL
-#ARG ARG_USER_NAME=code
-#ARG ARG_UID=10001
-#ARG ARG_GID=10001
-#todo add uid
-
 ENV TZ="Europe/Berlin"
-ENV ENV_WEB_PASSWORD="hallo"
-ENV ENV_USER_PASSWORD="hallo"
+ENV ENV_WEB_PASSWORD=""
+ENV ENV_USER_PASSWORD=""
 ENV ENV_USER_NAME=code
 ENV ENV_UID=10001
 ENV ENV_VS_EXTENSIONS_GALLERY=false
@@ -59,14 +45,15 @@ ENV ENV_IFBIND="0.0.0.0"
 ENV ENV_WORKSPACE="/app/workspace"
 ENV ENV_GIT_NAME=""
 ENV ENV_GIT_EMAIL=""
+ENV ENV_OH_MY_ZSH=true
 
 #openssh git-lfs nano man zsh curl locales
 #git lfs install
 COPY --from=packages /rootfs /
 
-#caddy
+#todo: caddy
 RUN apk update && \
-apk add tzdata tini su-exec git sudo argon2 bash nodejs libstdc++ libc6-compat && \
+apk add tzdata tini su-exec git git-lfs sudo argon2 bash zsh nodejs libstdc++ libc6-compat && \
 echo "$TZ" > /etc/timezone && \
 cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
 apk del tzdata
@@ -74,6 +61,8 @@ apk del tzdata
 RUN adduser -u $ENV_UID -H -D -h /app/config $ENV_USER_NAME && \
 chown -R ${ENV_USER_NAME}:users /app && \
 chmod +x /entrypoint.sh
+
+
 
 EXPOSE $ENV_PORT
 WORKDIR $ENV_WORKSPACE
