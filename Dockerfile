@@ -45,7 +45,7 @@ ENV ENV_IFBIND="0.0.0.0"
 ENV ENV_WORKSPACE="/app/workspace"
 ENV ENV_GIT_NAME=""
 ENV ENV_GIT_EMAIL=""
-ENV ENV_OH_MY_ZSH=true
+#ENV ENV_OH_MY_ZSH=true
 
 #openssh git-lfs nano man zsh curl locales
 #git lfs install
@@ -53,14 +53,22 @@ COPY --from=packages /rootfs /
 
 #todo: caddy
 RUN apk update && \
-apk add tzdata tini su-exec git git-lfs sudo argon2 bash zsh nodejs libstdc++ libc6-compat && \
+#    apk add zsh git vim zsh-autosuggestions zsh-syntax-highlighting bind-tools curl && \
+apk add tzdata nano wget curl util-linux tini su-exec git git-lfs sudo argon2 bash zsh nodejs libstdc++ libc6-compat && \
 echo "$TZ" > /etc/timezone && \
 cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
-apk del tzdata
+apk del tzdata && \
+rm -rf /var/cache/apk/*
 
 RUN adduser -u $ENV_UID -H -D -h /app/config $ENV_USER_NAME && \
 chown -R ${ENV_USER_NAME}:users /app && \
 chmod +x /entrypoint.sh
+
+##oh my zsh
+RUN /sbin/su-exec $ENV_USER_NAME /bin/bash -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" && \
+sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd
+
+
 
 EXPOSE $ENV_PORT
 WORKDIR $ENV_WORKSPACE

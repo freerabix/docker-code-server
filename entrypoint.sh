@@ -27,13 +27,15 @@ if [ "$ENV_GIT_NAME" != "" ] && [ "$ENV_GIT_EMAIL" != "" ]; then
     unset ENV_GIT_EMAIL
 fi
 
-if [ "$ENV_OH_MY_ZSH" = true ]; then
-    if [ ! -d /app/config/.oh-my-zsh ]; then
-        /sbin/su-exec $ENV_USER_NAME sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-    fi
-else
-    rm -r /app/config/.oh-my-zsh
-fi
+#if [ "$ENV_OH_MY_ZSH" = true ]; then
+#    if [ ! -d /app/config/.oh-my-zsh ]; then
+#        /sbin/su-exec $ENV_USER_NAME /bin/bash -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" &
+#        sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd
+#    fi
+#else
+#    rm -r /app/config/.oh-my-zsh
+#    sed -i -e "s/bin\/zsh/bin\/ash/" /etc/passwd
+#fi
 
 #TODO: caddy ssl proxy
 #mydomain.com
