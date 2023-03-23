@@ -62,9 +62,8 @@ RUN adduser -u $ENV_UID -H -D -h /app/config $ENV_USER_NAME && \
 chown -R ${ENV_USER_NAME}:users /app && \
 chmod +x /entrypoint.sh
 
-
-
 EXPOSE $ENV_PORT
 WORKDIR $ENV_WORKSPACE
+VOLUME ["/app","/tmp","/var/log"]
 ENTRYPOINT ["/sbin/tini","--","/entrypoint.sh"]
 CMD /opt/npm/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password --disable-telemetry --disable-update-check $ENV_WORKSPACE
