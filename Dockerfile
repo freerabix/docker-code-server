@@ -26,7 +26,7 @@ COPY --chown=root:root rootfs /rootfs
 #COPY --chown=root:root .bashrc /rootfs/app/config
 
 RUN apk update && \
-apk add tzdata bash npm nodejs yarn python3 curl build-base libstdc++ libc6-compat alpine-sdk && \
+apk add tzdata bash npm nodejs yarn python3 curl libstdc++ libc6-compat alpine-sdk && \
 npm config set prefix /rootfs/opt/npm && \
 npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
 cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
@@ -59,7 +59,7 @@ COPY --from=packages /rootfs /
 #todo: caddy
 RUN apk update && \
 #    apk add zsh git vim zsh-autosuggestions zsh-syntax-highlighting bind-tools curl && \
-apk add tzdata nano wget curl util-linux tini su-exec git git-lfs sudo argon2 bash zsh zsh-autosuggestions zsh-syntax-highlighting nodejs libstdc++ libc6-compat && \
+apk add tzdata nano wget curl tini su-exec git git-lfs sudo argon2 bash figlet zsh zsh-autosuggestions zsh-syntax-highlighting nodejs libstdc++ libc6-compat && \
 echo "$TZ" > /etc/timezone && \
 cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
 apk del tzdata && \
