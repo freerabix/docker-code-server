@@ -27,6 +27,11 @@ if [ "$ENV_GIT_NAME" != "" ] && [ "$ENV_GIT_EMAIL" != "" ]; then
     unset ENV_GIT_EMAIL
 fi
 
+#if [ ! -f "$/app/config/certs" ]; then
+    #cd /app/config/certs
+    #openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365
+#fi
+
 #if [ "$ENV_OH_MY_ZSH" = true ]; then
 #    if [ ! -d /app/config/.oh-my-zsh ]; then
 #        /sbin/su-exec $ENV_USER_NAME /bin/bash -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" &

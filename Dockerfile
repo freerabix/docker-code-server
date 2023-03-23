@@ -79,3 +79,12 @@ WORKDIR $ENV_WORKSPACE
 VOLUME ["/app","/tmp","/var/log"]
 ENTRYPOINT ["/sbin/tini","--","/entrypoint.sh"]
 CMD /opt/npm/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password --disable-telemetry --disable-update-check $ENV_WORKSPACE
+
+
+#LABEL org.label-schema.schema-version="1.0" \
+#	org.label-schema.license="MIT" \
+#	org.label-schema.name="nginx-full" \
+#	org.label-schema.description="A base image for use by Nginx Proxy Manager" \
+#	org.label-schema.url="https://github.com/nginxproxymanager/docker-nginx-full" \
+#	org.label-schema.vcs-url="https://github.com/nginxproxymanager/docker-nginx-full.git" \
+#	org.label-schema.cmd="docker run --rm -ti jc21/nginx-full:latest"
