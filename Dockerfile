@@ -13,13 +13,17 @@ RUN apk update && \
 apk add tar gzip xz wget
 #zypper -n clean && rm -r /var/log/*
 
+RUN mkdir -p /rootfs
 ###set permission: cleaning
 #RUN setfacl -R -b  /tmp/rootfs
-RUN mkdir -p /rootfs/opt/npm && \
-mkdir -p /rootfs/app/workspace && \
-mkdir -p /rootfs/app/config
-
-COPY --chown=root:root entrypoint.sh /rootfs
+#RUN mkdir -p /rootfs/opt/npm && \
+#mkdir -p /rootfs/app/workspace && \
+#mkdir -p /rootfs/app/config && \
+#mkdir -p /rootfs/root
+COPY --chown=root:root rootfs /rootfs
+#COPY --chown=root:root entrypoint.sh /rootfs
+#COPY --chown=root:root .bashrc /rootfs/root
+#COPY --chown=root:root .bashrc /rootfs/app/config
 
 RUN apk update && \
 apk add tzdata bash npm nodejs yarn python3 curl build-base libstdc++ libc6-compat alpine-sdk && \
@@ -45,6 +49,7 @@ ENV ENV_IFBIND="0.0.0.0"
 ENV ENV_WORKSPACE="/app/workspace"
 ENV ENV_GIT_NAME=""
 ENV ENV_GIT_EMAIL=""
+#ENV PS1='\[\e[31m\][\[\e[m\]\[\e[38;5;172m\]\u\[\e[m\]@\[\e[38;5;153m\]\h\[\e[m\] \[\e[38;5;214m\]\W\[\e[m\]\[\e[31m\]]\[\e[m\]\\$ '
 #ENV ENV_OH_MY_ZSH=true
 
 #openssh git-lfs nano man zsh curl locales
@@ -54,7 +59,7 @@ COPY --from=packages /rootfs /
 #todo: caddy
 RUN apk update && \
 #    apk add zsh git vim zsh-autosuggestions zsh-syntax-highlighting bind-tools curl && \
-apk add tzdata nano wget curl util-linux tini su-exec git git-lfs sudo argon2 bash zsh nodejs libstdc++ libc6-compat && \
+apk add tzdata nano wget curl util-linux tini su-exec git git-lfs sudo argon2 bash zsh zsh-autosuggestions zsh-syntax-highlighting nodejs libstdc++ libc6-compat && \
 echo "$TZ" > /etc/timezone && \
 cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
 apk del tzdata && \
@@ -66,8 +71,7 @@ chmod +x /entrypoint.sh
 
 ##oh my zsh
 RUN /sbin/su-exec $ENV_USER_NAME /bin/bash -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" && \
-sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd
-
+sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd 
 
 
 EXPOSE $ENV_PORT
