@@ -21,11 +21,10 @@ mkdir -p /rootfs/app/config
 COPY --chown=root:root entrypoint.sh /rootfs
 
 RUN apk update && \
-apk add bash npm nodejs python3 curl build-base libstdc++ libc6-compat alpine-sdk && \
+apk add bash npm nodejs yarn python3 curl build-base libstdc++ libc6-compat alpine-sdk && \
 npm config set prefix /rootfs/opt/npm && \
-npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm
-
-#apk add alpine-sdk bash libstdc++ libc6-compat
+npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
+cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
 #npm config set python python3
 
 ######MAIN######
