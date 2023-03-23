@@ -64,9 +64,12 @@ ENV ENV_GIT_EMAIL=""
 #git lfs install
 COPY --from=packages /rootfs /
 
-RUN apk update && \
 #caddy
-apk add tini su-exec git sudo argon2 bash nodejs libstdc++ libc6-compat
+RUN apk update && \
+apk add tzdata tini su-exec git sudo argon2 bash nodejs libstdc++ libc6-compat && \
+echo "$TZ" > /etc/timezone && \
+cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
+apk del tzdata
 
 RUN adduser -u $ENV_UID -H -D -h /app/config $ENV_USER_NAME && \
 chown -R ${ENV_USER_NAME}:users /app && \
