@@ -42,18 +42,18 @@ ENV TZ="Europe/Berlin"
 ENV ENV_WEB_PASSWORD=""
 ENV ENV_USER_PASSWORD=""
 ENV ENV_USER_NAME=code
+ENV ENV_RUN_USER=code
+#ENV ENV_RUN_USER_PASSWORD=$ENV_USER_PASSWORD
 ENV ENV_UID=10001
+ENV ENV_GID=10001
 ENV ENV_VS_EXTENSIONS_GALLERY=false
 ENV ENV_PORT=8443
 ENV ENV_IFBIND="0.0.0.0"
 ENV ENV_WORKSPACE="/app/workspace"
 ENV ENV_GIT_NAME=""
 ENV ENV_GIT_EMAIL=""
-#ENV PS1='\[\e[31m\][\[\e[m\]\[\e[38;5;172m\]\u\[\e[m\]@\[\e[38;5;153m\]\h\[\e[m\] \[\e[38;5;214m\]\W\[\e[m\]\[\e[31m\]]\[\e[m\]\\$ '
-#ENV ENV_OH_MY_ZSH=true
 
 #openssh git-lfs nano man zsh curl locales
-#git lfs install
 COPY --from=packages /rootfs /
 
 #todo: caddy
@@ -65,12 +65,15 @@ cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
 apk del tzdata && \
 rm -rf /var/cache/apk/*
 
-RUN adduser -u $ENV_UID -H -D -h /app/config $ENV_USER_NAME && \
-chown -R ${ENV_USER_NAME}:users /app && \
-chmod +x /entrypoint.sh
+#TODO: GID?
+RUN adduser -u $ENV_UID -H -D -h /app/config -s /bin/zsh $ENV_USER_NAME && \
+chown -R ${ENV_UID}:${ENV_GID} /app && \
+chmod +x /entrypoint.sh && \
+chmod 700 /entrypoint.sh
 
-##oh my zsh
-RUN /sbin/su-exec $ENV_USER_NAME /bin/bash -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" && \
+##oh my zsh for root and user
+RUN /bin/bash -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" && \
+/sbin/su-exec $ENV_USER_NAME /bin/bash -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" && \
 sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd 
 
 
@@ -82,9 +85,9 @@ CMD /opt/npm/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password -
 
 
 #LABEL org.label-schema.schema-version="1.0" \
-#	org.label-schema.license="MIT" \
-#	org.label-schema.name="nginx-full" \
-#	org.label-schema.description="A base image for use by Nginx Proxy Manager" \
-#	org.label-schema.url="https://github.com/nginxproxymanager/docker-nginx-full" \
-#	org.label-schema.vcs-url="https://github.com/nginxproxymanager/docker-nginx-full.git" \
-#	org.label-schema.cmd="docker run --rm -ti jc21/nginx-full:latest"
+#	org.label-schema.license="nothing" \
+#	org.label-schema.name="secdocker-code-server" \
+#	org.label-schema.description="A secure docker container for code server" \
+#	org.label-schema.url="https://github.com/freerabix/docker-code-server" \
+#	org.label-schema.vcs-url="https://github.com/freerabix/docker-code-server.git" \
+#	org.label-schema.cmd="docker run --rm -ti freerabix/docker-code-server"

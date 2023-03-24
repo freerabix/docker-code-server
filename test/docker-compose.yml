@@ -1,0 +1,28 @@
+
+
+volumes:
+  app_tmp:
+  app_var_log:
+  app_app:
+  #app_root:
+
+version: "3"
+services:
+  app:
+    build: .
+    image: gogo
+    restart: unless-stopped
+    #container_name: test11
+    ports:
+      - 8443:8443
+    environment:
+        ENV_GIT_NAME: name
+        ENV_GIT_EMAIL: name@mail.de
+        ENV_USER_PASSWORD: hallo
+        ENV_WEB_PASSWORD: hallo
+      #- ENV_RUN_USER=root
+      #- ENV_WORKSPACE=/mnt
+    volumes:
+      - app_app:/app
+      - app_var_log:/var/log
+      - app_tmp:/tmp
