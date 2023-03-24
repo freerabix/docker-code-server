@@ -59,7 +59,7 @@ COPY --from=packages /rootfs /
 #todo: caddy
 RUN apk update && \
 #    apk add zsh git vim zsh-autosuggestions zsh-syntax-highlighting bind-tools curl && \
-apk add tzdata nano wget curl tini su-exec git git-lfs sudo argon2 bash figlet zsh zsh-autosuggestions zsh-syntax-highlighting nodejs libstdc++ libc6-compat && \
+apk add tzdata nano wget curl tini su-exec git git-lfs libsecret sudo argon2 bash figlet zsh zsh-autosuggestions zsh-syntax-highlighting nodejs libstdc++ libc6-compat && \
 echo "$TZ" > /etc/timezone && \
 cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
 apk del tzdata && \
