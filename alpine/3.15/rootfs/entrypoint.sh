@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+##time
+if [ ! -f "/etc/timezone" ]; then
+    echo "$TZ" > /etc/timezone && \
+    cp /usr/share/zoneinfo/"$TZ" /etc/localtime
+fi
+
+
 if [ "$ENV_WEB_PASSWORD" != "" ]; then
     SALT=`cat /dev/urandom | head -c 10 | base64`
     export HASHED_PASSWORD=`echo -n "$ENV_WEB_PASSWORD" | argon2 $SALT -e`

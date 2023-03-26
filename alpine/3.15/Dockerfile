@@ -10,26 +10,34 @@ ARG ARG_CODE_SERVER_VERSION="4.11.0"
 #ARG ARG_TINI_VERSION="v0.19.0"
 
 RUN apk update && \
-apk add tar gzip xz wget
-#zypper -n clean && rm -r /var/log/*
+apk add --no-cache tzdata bash npm nodejs yarn python3 curl libstdc++ libc6-compat alpine-sdk
 
 RUN mkdir -p /rootfs
+COPY --chown=root:root rootfs /rootfs
+
+RUN npm config set prefix /rootfs/opt/npm && \
+npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
+cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
+
+#RUN apk update && \
+#apk add --no-cache tar gzip xz wget
+#zypper -n clean && rm -r /var/log/*
+
 ###set permission: cleaning
 #RUN setfacl -R -b  /tmp/rootfs
 #RUN mkdir -p /rootfs/opt/npm && \
 #mkdir -p /rootfs/app/workspace && \
 #mkdir -p /rootfs/app/config && \
 #mkdir -p /rootfs/root
-COPY --chown=root:root rootfs /rootfs
 #COPY --chown=root:root entrypoint.sh /rootfs
 #COPY --chown=root:root .bashrc /rootfs/root
 #COPY --chown=root:root .bashrc /rootfs/app/config
 
-RUN apk update && \
-apk add tzdata bash npm nodejs yarn python3 curl libstdc++ libc6-compat alpine-sdk && \
-npm config set prefix /rootfs/opt/npm && \
-npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
-cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
+#RUN apk update && \
+#apk add --no-cache tzdata bash npm nodejs yarn python3 curl libstdc++ libc6-compat alpine-sdk && \
+#npm config set prefix /rootfs/opt/npm && \
+#npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
+#cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
 #npm config set python python3
 
 
@@ -41,8 +49,8 @@ FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION}
 ENV TZ="Europe/Berlin"
 ENV ENV_WEB_PASSWORD=""
 ENV ENV_USER_PASSWORD=""
-ENV ENV_USER_NAME=code
-ENV ENV_RUN_USER=code
+ENV ENV_USER_NAME=app
+ENV ENV_RUN_USER=app
 #ENV ENV_RUN_USER_PASSWORD=$ENV_USER_PASSWORD
 ENV ENV_UID=10001
 ENV ENV_GID=10001
@@ -53,17 +61,14 @@ ENV ENV_WORKSPACE="/app/workspace"
 ENV ENV_GIT_NAME=""
 ENV ENV_GIT_EMAIL=""
 
+#todo: caddy
+#    apk add zsh git vim zsh-autosuggestions zsh-syntax-highlighting bind-tools curl && \
+RUN apk update && \
+apk add --no-cache tzdata nano wget curl tini su-exec git git-lfs libsecret sudo argon2 bash figlet zsh zsh-autosuggestions zsh-syntax-highlighting nodejs libstdc++ libc6-compat && \
+rm -rf /var/cache/apk/*
+
 #openssh git-lfs nano man zsh curl locales
 COPY --from=packages /rootfs /
-
-#todo: caddy
-RUN apk update && \
-#    apk add zsh git vim zsh-autosuggestions zsh-syntax-highlighting bind-tools curl && \
-apk add tzdata nano wget curl tini su-exec git git-lfs libsecret sudo argon2 bash figlet zsh zsh-autosuggestions zsh-syntax-highlighting nodejs libstdc++ libc6-compat && \
-echo "$TZ" > /etc/timezone && \
-cp /usr/share/zoneinfo/"$TZ" /etc/localtime && \
-apk del tzdata && \
-rm -rf /var/cache/apk/*
 
 #TODO: GID?
 RUN adduser -u $ENV_UID -H -D -h /app/config -s /bin/zsh $ENV_USER_NAME && \
