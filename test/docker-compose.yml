@@ -10,18 +10,21 @@ version: "3"
 services:
   app:
     build: .
-    image: gogo
+    image: test123:latest
     restart: unless-stopped
     #container_name: test11
     ports:
       - 8443:8443
     environment:
-        ENV_GIT_NAME: name
-        ENV_GIT_EMAIL: name@mail.de
-        ENV_USER_PASSWORD: hallo
-        ENV_WEB_PASSWORD: hallo
-      #- ENV_RUN_USER=root
-      #- ENV_WORKSPACE=/mnt
+        ENV_GIT_NAME:
+        ENV_GIT_EMAIL:
+        ENV_USER_PASSWORD:
+        ENV_WEB_PASSWORD:
+    env_file: .env
+    command: clang
+    tmpfs:
+      - /tmp
+    #- /tmp    
     volumes:
       - app_app:/app
       - app_var_log:/var/log

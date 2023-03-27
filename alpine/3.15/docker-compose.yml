@@ -1,27 +1,49 @@
 
+version: "3.5"
+
 volumes:
-  app_tmp:
-  app_var_log:
   app_app:
+  app_var_log:
   #app_root:
 
-version: "3"
 services:
   app:
-    build: .
-    image: secdocker-code-server:0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: code-server
+      #target: ${BUILD_TARGET}
+      #args:
+        #ARG_CODE_SERVER_VERSION:
+        #ARG_OS_VERSION
+        #ARG_OS_URL
+    image: docker-code-server:0.1
     restart: unless-stopped
     #container_name: test11
     ports:
       - 8443:8443
     environment:
-        ENV_GIT_NAME: name
-        ENV_GIT_EMAIL: name@mail.de
-        ENV_USER_PASSWORD: hallo
-        ENV_WEB_PASSWORD: hallo
-      #ENV_RUN_USER: root
-      #ENV_WORKSPACE: /mnt
+        ENV_GIT_NAME:
+        ENV_GIT_EMAIL:
+        ENV_USER_PASSWORD:
+        ENV_WEB_PASSWORD:
+        # TZ="Europe/Berlin"
+        # ENV_USER_NAME=app
+        # ENV_RUN_USER=app
+        # ENV_UID=10001
+        # ENV_GID=10001
+        # ENV_VS_EXTENSIONS_GALLERY=false
+        # ENV_PORT=8443
+        # ENV_IFBIND="0.0.0.0"
+        # ENV_WORKSPACE="/app/workspace"
+    env_file: .env
+    #command: mount
+    tmpfs:
+      - /tmp
     volumes:
       - app_app:/app
       - app_var_log:/var/log
-      - app_tmp:/tmp
+      #- type: tmpfs
+         #target: /tmp
+         #tmpfs:
+            #size: 1000M
