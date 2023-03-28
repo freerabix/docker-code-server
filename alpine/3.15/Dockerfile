@@ -14,7 +14,9 @@ RUN apk update && \
 apk add --no-cache tzdata bash npm nodejs yarn python3 curl libstdc++ libc6-compat alpine-sdk
 
 RUN mkdir -p /rootfs
-COPY --chown=root:root rootfs /rootfs
+#--chown=root:root 
+COPY rootfs /rootfs
+
 
 RUN npm config set prefix /rootfs/opt/npm && \
 npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
