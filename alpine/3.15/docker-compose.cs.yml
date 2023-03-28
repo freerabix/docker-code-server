@@ -27,7 +27,7 @@ services:
       #tags:
       #  - "test"ARG_CODE_SERVER_VERSION
     #image: code-server:${ARG_CODE_SERVER_VERSION}
-    image: freerabix/docker-code-server:${ARG_CODE_SERVER_VERSION}
+    image: freerabix/docker-code-server:${ARG_CODE_SERVER_VERSION}-alpine-3.15
     restart: unless-stopped
     #container_name: test11
     networks:

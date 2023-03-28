@@ -1,9 +1,10 @@
 ###template: https://github.com/coder/code-server/blob/bbf18cc6b0e50308219e096d24961d10b62e0479/ci/release-image/Dockerfile
 
+
+ARG ARG_CODE_SERVER_VERSION="4.11.0"
 #ARG ARG_CPU_ARCH="amd64"
 ARG ARG_REGISTRY
 ARG ARG_BASE_IMAGE="code-server"
-ARG ARG_CODE_SERVER_VERSION="4.11.0"
 ARG ARG_BASE_TAG=$ARG_CODE_SERVER_VERSION
 
 #FROM cs as cs.cpp
