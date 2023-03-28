@@ -15,7 +15,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: cs
+      #target: cs
       args:
         ARG_REGISTRY:
         ARG_BASE_IMAGE: alpine
@@ -60,8 +60,8 @@ services:
     extends:
       file: docker-compose.yml
       service: cs
-    build:
-      target: cs.cpp
+    #build:
+    #  target: cs.cpp
     image: code-server-cpp:${ARG_CODE_SERVER_VERSION}-clang-12.0.1
     env_file:
       - cs.env

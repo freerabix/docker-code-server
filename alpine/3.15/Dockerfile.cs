@@ -23,7 +23,7 @@ npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
 cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
 
 
-FROM --platform=amd64 ${ARG_REGISTRY}${ARG_BASE_IMAGE}:${ARG_BASE_TAG} as cs
+FROM --platform=amd64 ${ARG_REGISTRY}${ARG_BASE_IMAGE}:${ARG_BASE_TAG}
 
 ENV TZ="Europe/Berlin"
 ENV ENV_WEB_PASSWORD=""
@@ -78,8 +78,8 @@ CMD /opt/npm/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password -
 
 
 
-FROM cs as cs.cpp
-RUN apk update && apk add --no-cache alpine-sdk clang make automake autoconf cmake pkgconf
+#FROM cs as cs.cpp
+#RUN apk update && apk add --no-cache alpine-sdk clang make automake autoconf cmake pkgconf
 
 
 #FROM --platform=amd64 code-server as coder-server-java
@@ -87,20 +87,6 @@ RUN apk update && apk add --no-cache alpine-sdk clang make automake autoconf cma
 
 #FROM --platform=amd64 code-server as coder-server-sdk
 #RUN apk update && apk add --no-cache alpine-sdk
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #RUN apk update && \
