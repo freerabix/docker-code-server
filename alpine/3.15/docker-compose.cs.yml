@@ -26,7 +26,8 @@ services:
     #    ARG_CODE_SERVER_VERSION: ${ARG_CODE_SERVER_VERSION}
       #tags:
       #  - "test"ARG_CODE_SERVER_VERSION
-    image: code-server:${ARG_CODE_SERVER_VERSION}
+    #image: code-server:${ARG_CODE_SERVER_VERSION}
+    image: freerabix/docker-code-server:${ARG_CODE_SERVER_VERSION}
     restart: unless-stopped
     #container_name: test11
     networks:
