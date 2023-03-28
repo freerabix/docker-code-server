@@ -1,9 +1,10 @@
 ###template: https://github.com/coder/code-server/blob/bbf18cc6b0e50308219e096d24961d10b62e0479/ci/release-image/Dockerfile
 
 #ARG ARG_CPU_ARCH="amd64"
-ARG ARG_OS_URL="alpine"
-ARG ARG_OS_VERSION="3.15"
-FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION} as rootfs
+ARG ARG_REGISTRY
+ARG ARG_BASE_IMAGE="alpine"
+ARG ARG_BASE_TAG="3.15"
+FROM --platform=amd64 ${ARG_REGISTRY}${ARG_BASE_IMAGE}:${ARG_BASE_TAG} as build
 
 ARG ARG_CODE_SERVER_VERSION="4.11.0"
 #ARG ARG_GOSU_VERSION="1.16"
@@ -20,8 +21,7 @@ npm install -g code-server@^${ARG_CODE_SERVER_VERSION} --unsafe-perm && \
 cd /rootfs/opt/npm/lib/node_modules/code-server/lib/vscode && yarn
 
 
-
-FROM --platform=amd64 ${ARG_OS_URL}:${ARG_OS_VERSION} as code-server
+FROM --platform=amd64 ${ARG_REGISTRY}${ARG_BASE_IMAGE}:${ARG_BASE_TAG} as cs
 
 ENV TZ="Europe/Berlin"
 ENV ENV_WEB_PASSWORD=""
@@ -43,7 +43,7 @@ apk add --no-cache tzdata nano wget curl tini su-exec git git-lfs libsecret sudo
 rm -rf /var/cache/apk/*
 
 #openssh git-lfs nano man zsh curl locales
-COPY --from=rootfs /rootfs /
+COPY --from=build /rootfs /
 
 #TODO: GID?
 RUN adduser -u $ENV_UID -H -D -h /app/config -s /bin/zsh $ENV_USER_NAME && \
@@ -76,7 +76,7 @@ CMD /opt/npm/bin/code-server --bind-addr $ENV_IFBIND:$ENV_PORT --auth password -
 
 
 
-FROM --platform=amd64 code-server as code-server-cpp
+FROM cs as cs.cpp
 RUN apk update && apk add --no-cache alpine-sdk clang make automake autoconf cmake pkgconf
 
 

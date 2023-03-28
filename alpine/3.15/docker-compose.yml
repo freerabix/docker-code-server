@@ -1,5 +1,9 @@
 
-version: "3.5"
+version: "3.7"
+
+#networks:
+#  mgmt:
+#    external: false
 
 volumes:
   app_app:
@@ -7,19 +11,23 @@ volumes:
   #app_root:
 
 services:
-  app:
+  cs:
     build:
       context: .
       dockerfile: Dockerfile
-      target: code-server
-      #target: ${BUILD_TARGET}
-      #args:
-        #ARG_CODE_SERVER_VERSION:
-        #ARG_OS_VERSION
-        #ARG_OS_URL
-    image: docker-code-server:0.1
+      target: cs
+      args:
+        ARG_REGISTRY:
+        ARG_BASE_IMAGE: alpine
+        ARG_BASE_TAG: 3.15
+        ARG_CODE_SERVER_VERSION: ${ARG_CODE_SERVER_VERSION}
+      #tags:
+      #  - "test"ARG_CODE_SERVER_VERSION
+    image: code-server:${ARG_CODE_SERVER_VERSION}
     restart: unless-stopped
     #container_name: test11
+    #networks:
+    #  - mgmt
     ports:
       - 8443:8443
     environment:
@@ -36,7 +44,7 @@ services:
         # ENV_PORT=8443
         # ENV_IFBIND="0.0.0.0"
         # ENV_WORKSPACE="/app/workspace"
-    env_file: .env
+    env_file: cs.env
     #command: mount
     tmpfs:
       - /tmp
@@ -47,3 +55,14 @@ services:
          #target: /tmp
          #tmpfs:
             #size: 1000M
+
+  cs.cpp:
+    extends:
+      file: docker-compose.yml
+      service: cs
+    build:
+      target: cs.cpp
+    image: code-server-cpp:${ARG_CODE_SERVER_VERSION}-clang-12.0.1
+    env_file:
+      - cs.env
+      - cs.cpp.env
