@@ -20,7 +20,7 @@ services:
       service: cs
     #build:
     #  target: cs.cpp
-    image: code-server-cpp:${ARG_CODE_SERVER_VERSION}-clang-12.0.1
+    image: code-server-cpp:${ARG_CODE_SERVER_VERSION}-cpp
     env_file:
       - cs.env
       - cs.cpp.env

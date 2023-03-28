@@ -2,7 +2,7 @@
 
 #ARG ARG_CPU_ARCH="amd64"
 ARG ARG_REGISTRY
-ARG ARG_BASE_IMAGE="code-server-cpp"
+ARG ARG_BASE_IMAGE="code-server"
 ARG ARG_BASE_TAG="4.11.0"
 
 #FROM cs as cs.cpp
